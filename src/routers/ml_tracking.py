@@ -5,7 +5,7 @@ import time
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from mlflow.client import MlflowClient
+from mlflow.tracking import MlflowClient
 
 logger = logging.getLogger(__name__)
 

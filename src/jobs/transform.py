@@ -277,6 +277,12 @@ def _process_large_file(
     total_rows = 0
     chunk_count = 0
 
+    # Schema fixo com todas as colunas como string — como o CSV é sempre lido
+    # com dtype=str, isso evita que o PyArrow infira tipo `null` para colunas
+    # que vierem 100% vazias no primeiro chunk (ex: data_situacao_especial),
+    # o que quebraria o cast quando um chunk POSTERIOR trouxesse valores reais.
+    schema = pa.schema([(col, pa.string()) for col in columns])
+
     with zipfile.ZipFile(zip_path, "r") as z:
         with z.open(csv_name) as f:
             reader = pd.read_csv(
@@ -293,21 +299,16 @@ def _process_large_file(
             for chunk_df in reader:
                 chunk_df = apply_business_rules(chunk_df, file_type)
 
-                # Converter para PyArrow Table
-                table = pa.Table.from_pandas(chunk_df, preserve_index=False)
+                # Converter para PyArrow Table já usando o schema fixo (todas as
+                # colunas como string), garantindo consistência entre chunks.
+                table = pa.Table.from_pandas(chunk_df, schema=schema, preserve_index=False)
 
-                # Inicializar writer com o schema do primeiro chunk
                 if writer is None:
-                    schema = table.schema
                     writer = pq.ParquetWriter(
                         output_path,
                         schema,
                         compression="snappy",
                     )
-                else:
-                    # Forçar schema consistente entre chunks
-                    # (evita mismatch quando colunas de data ficam all-null)
-                    table = table.cast(schema)
 
                 writer.write_table(table)
                 total_rows += len(chunk_df)

@@ -24,8 +24,10 @@ jobs:
 
       - name: Wait for Environment Health
         run: |
-          echo "Waiting for services to be healthy..."
-          sleep 10
+          echo "Aguardando o serviço 'db' ficar healthy..."
+          timeout 60 sh -c 'until docker compose ps db | grep -q "healthy"; do sleep 2; done'
+          echo "Aguardando a API responder em /health..."
+          timeout 90 sh -c 'until curl -sf http://localhost:8000/health > /dev/null; do sleep 2; done'
 
       - name: Check Ruff Linting & Formatting
         run: make lint

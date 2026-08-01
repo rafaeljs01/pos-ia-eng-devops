@@ -79,13 +79,13 @@ def run_pipeline(
 
         # Step 3: Transform
         logger.info(f"\n📌 Step 3/5 — Transform ({year_month})")
-        transform_data(year_month, first_only=first_only)
-        logger.info("Transform concluído.")
+        transform_result = transform_data(db, year_month, first_only=first_only)
+        logger.info(f"Transform: {transform_result.get('total_rows', 0):,} linhas processadas")
 
         # Step 4: Load DB
         logger.info(f"\n📌 Step 4/5 — Load PostgreSQL ({year_month})")
-        rows = load_to_postgres(year_month=year_month, db=db)
-        logger.info(f"Load DB: {rows:,} registros inseridos")
+        load_result = load_to_postgres(year_month=year_month, db=db)
+        logger.info(f"Load DB: {load_result.get('total_loaded', 0):,} registros inseridos")
 
         # Step 5: Load S3
         logger.info(f"\n📌 Step 5/5 — Load S3 ({year_month})")

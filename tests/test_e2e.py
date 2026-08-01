@@ -6,13 +6,18 @@ Utilizamos o TestClient do FastAPI para simular requisições HTTP
 no ambiente isolado (dentro do container).
 """
 
+import pytest
 from fastapi.testclient import TestClient
 from src.main import app
 
-client = TestClient(app)
+
+@pytest.fixture(scope="module")
+def client():
+    with TestClient(app) as c:
+        yield c
 
 
-def test_health_check_endpoint():
+def test_health_check_endpoint(client):
     """
     Testa se o endpoint de health check está respondendo corretamente.
     Valida a integração básica da API.
@@ -26,7 +31,7 @@ def test_health_check_endpoint():
     assert "timestamp" in data
 
 
-def test_root_endpoint():
+def test_root_endpoint(client):
     """
     Testa se o endpoint raiz retorna as informações da API.
     """
@@ -38,7 +43,7 @@ def test_root_endpoint():
     assert "empresas" in data.get("endpoints", {})
 
 
-def test_admin_sync_dashboard_empty_db():
+def test_admin_sync_dashboard_empty_db(client):
     """
     Testa o endpoint do dashboard admin.
     Mesmo com banco vazio ou parcialmente populado, deve retornar estrutura correta.
