@@ -227,4 +227,13 @@ Consulte os ADRs em `docs/adr/`:
 
 ---
 
+
+## RESUMO DO PROJETO
+
+Este projeto consiste em uma plataforma completa de Engenharia de Dados, DevOps e MLOps desenvolvida para automatizar o processamento dos dados públicos de Cadastro Nacional da Pessoa Jurídica (CNPJ), disponibilizados pela Receita Federal do Brasil. Seu principal objetivo é construir um pipeline de dados robusto, capaz de realizar desde a obtenção automática dos arquivos originais até a disponibilização das informações para consultas, análises e utilização em modelos de Machine Learning, seguindo boas práticas de desenvolvimento e infraestrutura.
+
+- Engenharia e Qualidade de Dados: O pipeline faz a ingestão dos dados brutos, utiliza PyArrow para manipular esses volumes massivos com alta performance, garante a integridade dos dados usando Great Expectations e mantém todo o histórico versionado com DVC.  
+- Serving e MLOps: Ele possui automações para treinar os modelos de Machine Learning e rastrear suas métricas, disponibilizando uma API REST modular com rotas tanto para consulta cadastral de empresas quanto para servir as predições dos modelos treinados.  
+- Infraestrutura e DevOps: A aplicação roda totalmente conteinerizada com Podman / Podman Compose, utiliza o Garage para simular um armazenamento S3 local (self-hosted) e conta com pipelines de CI via GitHub Actions com testes unitários e de ponta a ponta (E2E).
+
 > 💡 **Dica**: Use `make help` para ver todos os targets disponíveis no Makefile.
